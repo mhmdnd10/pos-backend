@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\SupplierController;
 
 //auth routes
 Route::post('/register', [AuthController::class, 'register']);
@@ -32,4 +33,20 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/products/{id}', [ProductController::class, 'destroy']);
     Route::get('/products/category/{categoryId}', [ProductController::class, 'getByCategory']);
     Route::post('/products/import', [ProductController::class, 'import']);
+});
+
+//supplier routes
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/suppliers', [SupplierController::class, 'index']);
+    Route::post('/suppliers', [SupplierController::class, 'store']);
+    Route::get('/suppliers/{id}', [SupplierController::class, 'show']);
+    Route::put('/suppliers/{id}', [SupplierController::class, 'update']);
+    Route::delete('/suppliers/{id}', [SupplierController::class, 'destroy']);
+});
+
+//purchase routes
+Route::prefix('purchases')->middleware('auth:sanctum')->group(function () {
+    Route::get('/', [PurchaseController::class, 'index']);
+    Route::post('/', [PurchaseController::class, 'store']);
+    Route::get('/{id}', [PurchaseController::class, 'show']);
 });

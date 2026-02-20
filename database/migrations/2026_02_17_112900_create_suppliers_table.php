@@ -16,10 +16,10 @@ return new class extends Migration
             $table->string('name')->index();
             $table->string('phone');
             $table->string('address')->nullable();
-            $table->decimal('current_balance', 10, 2)->default(0);
             $table->timestamps();
         });
     }
+    
 
     /**
      * Reverse the migrations.

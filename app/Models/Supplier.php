@@ -10,12 +10,21 @@ class Supplier extends Model
         'name',
         'phone',
         'address',
-        'current_balance',
+    
     ];
 
     public function purchases()
     {
         return $this->hasMany(Purchase::class);
+    }
+    public function ledgers()
+    {
+        return $this->hasMany(SupplierLedger::class);
+    }
+    public function getBalanceAttribute()
+    
+    {
+        return $this->ledgers()->selectRaw('SUM(debit - credit) as balance')->value('balance') ?? 0;
     }
 
 }
