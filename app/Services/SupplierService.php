@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\DB;
 
 
 
+
 class SupplierService
 {
     public function create(array $data){
@@ -12,7 +13,8 @@ class SupplierService
     }
     public function getAll($search=null){
         return Supplier::when($search, function($query) use ($search){
-            $query->where('name','Like', $search .'%');
+            $query->where('name','Like', $search .'%')
+                  ->orWhere('phone','Like', $search .'%');
 
         })->paginate(15);
     }
@@ -25,6 +27,11 @@ class SupplierService
     }
     public function delete(Supplier $supplier){
         $supplier->delete();
+    }
+
+    public function getLedger($supplierId){
+        $supplier=Supplier::with('ledgers')->findOrFail($supplierId);
+        return $supplier->ledgers()->orderBy('created_at','desc')->paginate(15);
     }
 
     // public function updateBalance(Supplier $supplier, $amount){

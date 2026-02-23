@@ -16,12 +16,13 @@ return new class extends Migration
             $table->foreignId('supplier_id')->constrained()->onDelete('cascade');
             $table->string('type');
             $table->unsignedBigInteger('reference_id')->nullable();
-            $table->string('refernce_number')->nullable();
+            $table->string('reference_number')->nullable();
             $table->decimal('debit', 10, 2)->default(0);
             $table->decimal('credit', 10, 2)->default(0);
             $table->index('supplier_id');
             $table->index('type');
             $table->timestamps();
+            $table->index(['supplier_id', 'created_at']);
         });
     }
 

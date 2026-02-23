@@ -50,6 +50,10 @@ class SupplierController extends Controller
 
         ],200);
     }
+    public function ledger($id){
+        $ledgerEntries=$this->supplierService->getLedger($id);
+        return response()->json($ledgerEntries,200);
+    }
     // public function updateBalance(Request $request, $id){
     //     $supplier=$this->supplierService->getById($id);
     //     $data=$request->validate([

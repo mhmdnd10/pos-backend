@@ -17,5 +17,14 @@ class Customer extends Model
     {
         return $this->hasMany(Sale::class);
     }
+    public function ledgers()
+    {
+        return $this->hasMany(CustomerLedger::class);
+    }
+
+    public function getBalanceAttribute()
+    {
+        return $this->ledgers()->selectRaw('SUM(debit - credit) as balance')->value('balance') ?? 0;
+    }
     
 }

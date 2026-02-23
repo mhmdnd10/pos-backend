@@ -21,7 +21,8 @@ class PurchaseService
                $itemModel= $purchase->purchaseItems()->create([
                     'product_id'=>$item['product_id'],
                     'quantity'=>$item['quantity'],
-                    'price'=>$item['price'],
+                    'unit_price'=>$item['unit_price'],
+                    'total_price'=>$item['quantity'] * $item['unit_price'],
                 ]);
                 $itemModel->product()->increment('stock_quantity',$item['quantity']);
             }
@@ -29,7 +30,7 @@ class PurchaseService
                 'supplier_id'=>$data['supplier_id'],
                 'type'=>'purchase',
                 'reference_id'=>$purchase->id,
-                'refernce_number'=>'PUR-' .$purchase->id,
+                'reference_number'=>'PUR-' .$purchase->id,
                 'debit'=>0,
                 'credit'=>$data['total_amount'],
             ]);
@@ -38,7 +39,7 @@ class PurchaseService
                     'supplier_id'=>$data['supplier_id'],
                     'type'=>'payment',
                     'reference_id'=>$purchase->id,
-                    'refernce_number'=>'PAY-' .$purchase->id,
+                    'reference_number'=>'PAY-' .$purchase->id,
                     'debit'=>$data['paid_amount'],
                     'credit'=>0,
                 ]);
@@ -47,9 +48,21 @@ class PurchaseService
         });
     }
 
-    public function getAll()
+    public function getAll($filters)
     {
-        return Purchase::with('purchaseItems')->paginate(15);
+        $query = Purchase::with('purchaseItems');
+        if(!empty($filters['supplier_id'])){
+            $query->where('supplier_id',$filters['supplier_id']);
+        }
+        
+        if(!empty($filters['from'])){
+            $query->whereDate('created_at','>=',$filters['from']);
+        }
+        if(!empty($filters['to'])){
+            $query->whereDate('created_at','<=',$filters['to']);
+        }
+        
+        return $query->latest()->paginate(15);
     }
 
     public function getById($id)

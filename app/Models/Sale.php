@@ -11,6 +11,7 @@ class Sale extends Model
         'total_amount',
         'paid_amount',
         'remaining_amount',
+        'payment_status',
     ];
 
     public function customer()

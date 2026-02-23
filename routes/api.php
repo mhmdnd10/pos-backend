@@ -5,6 +5,12 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\SupplierController;
+use App\Http\Controllers\PurchaseController;
+use App\Http\Controllers\SaleController;
+use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\CustomerPaymentController;
+use App\Http\Controllers\SupplierPaymentController;
+use App\Http\Controllers\DashboardController;
 
 //auth routes
 Route::post('/register', [AuthController::class, 'register']);
@@ -42,6 +48,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/suppliers/{id}', [SupplierController::class, 'show']);
     Route::put('/suppliers/{id}', [SupplierController::class, 'update']);
     Route::delete('/suppliers/{id}', [SupplierController::class, 'destroy']);
+    Route::get('/suppliers/{id}/ledger', [SupplierController::class, 'ledger']);
 });
 
 //purchase routes
@@ -50,3 +57,38 @@ Route::prefix('purchases')->middleware('auth:sanctum')->group(function () {
     Route::post('/', [PurchaseController::class, 'store']);
     Route::get('/{id}', [PurchaseController::class, 'show']);
 });
+
+//sale routes
+Route::prefix('sales')->middleware('auth:sanctum')->group(function () {
+    Route::get('/', [SaleController::class, 'index']);
+    Route::post('/', [SaleController::class, 'store']);
+    Route::get('/{id}', [SaleController::class, 'show']);
+});
+
+//customer routes
+Route::prefix('customers')->middleware('auth:sanctum')->group(function () {
+    Route::get('/', [CustomerController::class, 'index']);
+    Route::post('/', [CustomerController::class, 'store']);
+    Route::get('/{id}', [CustomerController::class, 'show']);
+    Route::put('/{id}', [CustomerController::class, 'update']);
+    Route::delete('/{id}', [CustomerController::class, 'destroy']);
+    Route::get('/{id}/ledger', [CustomerController::class, 'ledger']);
+});
+
+//customer payment routes
+Route::prefix('customer-payments')->middleware('auth:sanctum')->group(function () {
+    Route::get('/', [CustomerPaymentController::class, 'index']);
+    Route::post('/', [CustomerPaymentController::class, 'store']);
+    Route::get('/{id}', [CustomerPaymentController::class, 'show']);
+});
+
+//supplier payment routes
+Route::prefix('supplier-payments')->middleware('auth:sanctum')->group(function () {
+    Route::get('/', [SupplierPaymentController::class, 'index']);
+    Route::post('/', [SupplierPaymentController::class, 'store']);
+    Route::get('/{id}', [SupplierPaymentController::class, 'show']);
+});
+
+//dashboard route
+Route::get('/dashboard', [DashboardController::class, 'index'])->middleware('auth:sanctum');
+
