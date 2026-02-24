@@ -3,9 +3,11 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\BelongsToShop;
 
 class Product extends Model
 {
+    use BelongsToShop;
     protected $fillable = [
         'name',
         'barcode',
@@ -17,12 +19,17 @@ class Product extends Model
         'image',
         'is_active',
         'minimum_stock_alert',
+        'shop_id',
 
     ];
 
     public function category()
     {
         return $this->belongsTo(Category::class);
+    }
+    public function shop()
+    {
+        return $this->belongsTo(Shop::class);
     }
     
 }

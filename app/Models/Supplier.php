@@ -3,13 +3,16 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\BelongsToShop;
 
 class Supplier extends Model
 {
+    use BelongsToShop;
     protected $fillable = [
         'name',
         'phone',
         'address',
+        'shop_id',
     
     ];
 
@@ -25,6 +28,10 @@ class Supplier extends Model
     
     {
         return $this->ledgers()->selectRaw('SUM(debit - credit) as balance')->value('balance') ?? 0;
+    }
+    public function shop()
+    {
+        return $this->belongsTo(Shop::class);
     }
 
 }

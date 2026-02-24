@@ -17,6 +17,7 @@ class AuthController extends Controller
             'email'=>'required|string|email|max:255|unique:users',
             'password'=>'required|string|min:8|confirmed',
             'role'=>'required|in:admin,cashier',
+            'shop_id'=>'nullable|exists:shops,id',
         ]);
         $this->authService->register($data);
         return response()->json(['message'=>'Registration successful. Please check your email to verify your account.'],201);

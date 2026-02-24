@@ -89,7 +89,8 @@ class ProductController extends Controller
         $request->validate([
             'file' => 'required|file|mimes:xlsx,xls',
         ]);
-        Excel::queueImport(new ProductsImport, $request->file('file'));
+        $shopId = $request->user()->shop_id;
+        Excel::queueImport(new ProductsImport($shopId), $request->file('file'));
         return response()->json(['message' => 'Products imported successfully'], 200);
     }
 

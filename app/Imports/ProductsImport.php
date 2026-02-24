@@ -19,6 +19,11 @@ class ProductsImport implements ToModel, WithHeadingRow, WithChunkReading, Shoul
     *
     * @return \Illuminate\Database\Eloquent\Model|null
     */
+    protected $shopId;
+    public function __construct($shopId)
+    {       
+         $this->shopId = $shopId;
+    }
     public function chunkSize(): int
     {
         return 1000;
@@ -46,6 +51,7 @@ class ProductsImport implements ToModel, WithHeadingRow, WithChunkReading, Shoul
             'sale_price' => $row['sale_price'],
             'stock_quantity' => $row['stock_quantity'],
             'image' => $imagePath,
+            'shop_id' => $this->shopId,
             'is_active' => $row['is_active'] ?? true,
             'minimum_stock_alert' => $row['minimum_stock_alert'] ?? 0,
         ]);

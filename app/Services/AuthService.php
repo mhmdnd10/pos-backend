@@ -9,15 +9,27 @@ use App\Jobs\SendVerificationEmailJob;
 use Illuminate\Support\Facades\DB;
 use App\Mail\ResetPasswordMail;
 use App\Jobs\SendResetPasswordJob;
+use App\Models\Shop;
 
 class AuthService{
     public function register(array $data)
     {
+        if($data['role']=='admin' && empty($data['shop_id'])){
+            $shop=Shop::create([
+                'name' => $data['name'].'\'s Shop',
+            ]);
+          $shopId=$shop->id;
+
+        }else if($data['role']=='cashier'){
+            $shopId=$data['shop_id'] ?? null;
+            throw_if(empty($shopId), new \Exception('Shop ID is required for cashier role'));
+        }
         $user=User::create([
             'name' => $data['name'],
             'email' => $data['email'],
             'password' => Hash::make($data['password']),
             'role' => $data['role'] ?? 'cashier',
+            'shop_id' => $shopId,
             'email_verification_token' => Str::random(60),
         ]);  
         
