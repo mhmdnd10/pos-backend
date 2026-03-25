@@ -30,23 +30,26 @@ class SaleService
                 ]);
                 $itemModel->product()->decrement('stock_quantity',$item['quantity']);
             }
-            CustomerLedger::create([
-                'customer_id'=>$data['customer_id'],
-                'type'=>'sale',
-                'reference_id'=>$sale->id,
-                'reference_number'=>'SAL-' .$sale->id,
-                'debit'=>$data['total_amount'],
-                'credit'=>0,
-            ]);
-            if($data['paid_amount'] > 0){
+            if (!empty($data['customer_id'])) {
                 CustomerLedger::create([
                     'customer_id'=>$data['customer_id'],
-                    'type'=>'payment',
+                    'type'=>'sale',
                     'reference_id'=>$sale->id,
-                    'reference_number'=>'PAY-' .$sale->id,
-                    'debit'=>0,
-                    'credit'=>$data['paid_amount'],
+                    'reference_number'=>'SAL-' .$sale->id,
+                    'debit'=>$data['total_amount'],
+                    'credit'=>0,
                 ]);
+
+                if($data['paid_amount'] > 0){
+                    CustomerLedger::create([
+                        'customer_id'=>$data['customer_id'],
+                        'type'=>'payment',
+                        'reference_id'=>$sale->id,
+                        'reference_number'=>'PAY-' .$sale->id,
+                        'debit'=>0,
+                        'credit'=>$data['paid_amount'],
+                    ]);
+                }
             }
             return $sale->load('saleItems');
 

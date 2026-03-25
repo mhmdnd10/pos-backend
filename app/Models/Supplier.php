@@ -28,7 +28,7 @@ class Supplier extends Model
     public function getBalanceAttribute()
     
     {
-        return $this->ledgers()->selectRaw('SUM(debit - credit) as balance')->value('balance') ?? 0;
+        return $this->ledgers()->selectRaw('SUM(credit - debit) as balance')->value('balance') ?? 0;
     }
     public function shop()
     {

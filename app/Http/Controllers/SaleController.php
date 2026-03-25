@@ -16,7 +16,7 @@ class SaleController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'customer_id' => 'required|exists:customers,id',
+            'customer_id' => 'nullable|exists:customers,id',
             'total_amount' => 'required|numeric',
             'paid_amount' => 'required|numeric',
             'items' => 'required|array',
