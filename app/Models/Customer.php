@@ -15,6 +15,7 @@ class Customer extends Model
         'current_balance',
         'shop_id',
     ];
+    protected $appends = ['balance'];
 
     public function sales()
     {

@@ -15,7 +15,8 @@ class CustomerPayment extends Model
         'payment_method',
         'reference_number',
         'notes',
-        'shop_id'
+        'shop_id',
+        'payment_date'
     ];
 
     public function customer()

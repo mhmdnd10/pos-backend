@@ -19,6 +19,7 @@ class CustomerPaymentService
                 'reference_number'=>'PAY-' . $payment->id,
                 'debit'=>0,
                 'credit'=>$data['amount'],
+                'payment_date'=>$data['payment_date'] ?? now(),
             ]);
             if(!empty($data['sale_id'])){
                 $sale=Sale::findOrFail($data['sale_id']);

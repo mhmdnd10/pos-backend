@@ -23,6 +23,7 @@ class CustomerPaymentController extends Controller
             'payment_method'=>'required|string',
             'reference_number'=>'nullable|string',
             'notes'=>'nullable|string',
+            'payment_date'=>'nullable|date',
         ]);
         $payment=$this->customerPaymentService->create($data);
         return response()->json([

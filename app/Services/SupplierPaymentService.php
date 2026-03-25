@@ -19,6 +19,7 @@ class SupplierPaymentService
                   'reference_number'=>'PAY-' . $payment->id,
                   'debit'=>$data['amount'],
                   'credit'=>0,
+                  'payment_date'=>$data['payment_date'] ?? now(),
               ]);
                 if(!empty($data['purchase_id'])){
                     $purchase=Purchase::findOrFail($data['purchase_id']);

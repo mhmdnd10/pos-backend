@@ -13,7 +13,8 @@ class Purchase extends Model
         'total_amount',
         'paid_amount',
         'remaining_amount',
-        'shop_id'
+        'shop_id',
+        'purchase_date'
     ];
 
     public function supplier()

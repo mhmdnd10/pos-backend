@@ -18,7 +18,9 @@ class SaleService
                 'paid_amount'=>$data['paid_amount'],
                 'remaining_amount'=>$data['total_amount'] - $data['paid_amount'],
                 'payment_status'=>$data['paid_amount'] >= $data['total_amount'] ? 'paid' : ($data['paid_amount'] > 0 ? 'partial' : 'unpaid'),
+                'sale_date'=>$data['sale_date'] ?? now(),
             ]);
+            $data['shop_id'] = $sale->shop_id; 
             foreach($data['items'] as $item){
                $itemModel= $sale->saleItems()->create([
                     'product_id'=>$item['product_id'],

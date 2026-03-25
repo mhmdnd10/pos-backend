@@ -2,18 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Services\DashboardService;
 
 class DashboardController extends Controller
 {
-    protected $dashboardService;
-    public function __construct(DashboardService $dashboardService)
-    {
-        $this->dashboardService = $dashboardService;
-    }
+    public function __construct(protected DashboardService $dashboardService) {}
+
     public function index()
     {
-        $summary=$this->dashboardService->summary();
-        return response()->json($summary,200);
+        return response()->json($this->dashboardService->summary(), 200);
     }
 }

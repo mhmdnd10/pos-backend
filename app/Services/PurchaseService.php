@@ -16,6 +16,7 @@ class PurchaseService
                 'total_amount'=>$data['total_amount'],
                 'paid_amount'=>$data['paid_amount'],
                 'remaining_amount'=>$data['total_amount'] - $data['paid_amount'],
+                'purchase_date'=>$data['purchase_date'] ?? now(),
             ]);
             foreach($data['items'] as $item){
                $itemModel= $purchase->purchaseItems()->create([
@@ -23,6 +24,7 @@ class PurchaseService
                     'quantity'=>$item['quantity'],
                     'unit_price'=>$item['unit_price'],
                     'total_price'=>$item['quantity'] * $item['unit_price'],
+                    
                 ]);
                 $itemModel->product()->increment('stock_quantity',$item['quantity']);
             }

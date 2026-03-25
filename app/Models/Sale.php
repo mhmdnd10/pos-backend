@@ -14,7 +14,8 @@ class Sale extends Model
         'paid_amount',
         'remaining_amount',
         'payment_status',
-        'shop_id'
+        'shop_id',
+        'sale_date'
     ];
 
     public function customer()

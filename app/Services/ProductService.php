@@ -23,8 +23,12 @@ class ProductService{
         
         return Product::create($data);
     }
-    public function getAll(){
-        return Product::paginate(15);
+    public function getAll($search=null){
+        return Product::when($search, function($query) use ($search){
+            $query->where('name','Like', $search .'%')
+                  ->orWhere('barcode','Like', $search .'%');
+                  
+        })->with('category')->orderBy('id', 'desc')->paginate(15);
     }
     public function getById($id){
         return Product::findOrFail($id);

@@ -22,6 +22,7 @@ class SupplierPaymentController extends Controller
             'payment_method'=>'required|string',
             'reference_number'=>'nullable|string',
             'notes'=>'nullable|string',
+            'payment_date'=>'nullable|date',
         ]);
         $payment=$this->supplierPaymentService->create($data);
         return response()->json([

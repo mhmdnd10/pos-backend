@@ -15,6 +15,7 @@ class Supplier extends Model
         'shop_id',
     
     ];
+    protected $appends = ['balance'];
 
     public function purchases()
     {
