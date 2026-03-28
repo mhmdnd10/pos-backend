@@ -20,9 +20,11 @@ class ProductController extends Controller
     {
         $this->productService = $productService;
     }
-    public function index()
+    public function index(Request $request)
     {
-        $products = $this->productService->getAll();
+        $search=trim($request->query('search'));
+        $perPage = (int) $request->query('per_page', 15);
+        $products = $this->productService->getAll($search, $perPage);
         return response()->json($products, 200);
     }
     public function store(Request $request)
@@ -78,9 +80,11 @@ class ProductController extends Controller
         $this->productService->delete($product);
         return response()->json(['message' => 'Product deleted successfully'], 200);
     }
-    public function getByCategory($categoryId)
+    public function getByCategory($categoryId, Request $request)
     {
-        $products = $this->productService->getByCategory($categoryId);
+        $perPage = (int) $request->query('per_page', 15);
+        $search = trim($request->query('search'));
+        $products = $this->productService->getByCategory($categoryId, $perPage, $search);
         return response()->json($products, 200);
     }
 

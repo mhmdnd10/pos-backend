@@ -18,6 +18,8 @@ return new class extends Migration
             $table->decimal('paid_amount', 10, 2);
             $table->decimal('remaining_amount', 10, 2)->default(0);
             $table->enum('payment_status', ['paid', 'partial', 'unpaid'])->default('unpaid');
+            $table->string('invoice_number')->unique()->nullable();
+            $table->enum('invoice_status',['draft','finalized','cancelled'])->default('draft');
             $table->timestamps();
         });
     }

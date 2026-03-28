@@ -23,18 +23,21 @@ class ProductService{
         
         return Product::create($data);
     }
-    public function getAll($search=null){
-        return Product::when($search, function($query) use ($search){
-            $query->where('name','Like', $search .'%')
-                  ->orWhere('barcode','Like', $search .'%');
+    public function getAll($search=null,$perPage=15){
+        return Product::query()->when($search, function($query) use ($search){
+            $query->where('name','Like', '%' . $search . '%')
+                  ->orWhere('barcode','Like', '%' . $search . '%');
                   
-        })->with('category')->orderBy('id', 'desc')->paginate(15);
+        })->with('category')->orderBy('id', 'desc')->paginate($perPage);
     }
     public function getById($id){
         return Product::findOrFail($id);
     }
-    public function getByCategory($categoryId){
-        return Product::where('category_id', $categoryId)->paginate(15);
+    public function getByCategory($categoryId,$perPage=15, $search=null){
+        return Product::query()->when($search, function($query) use ($search){
+            $query->where('name','Like', '%' . $search . '%')
+                  ->orWhere('barcode','Like', '%' . $search . '%');
+        })->where('category_id', $categoryId)->paginate($perPage);
     }
     public function update(Product $product, array $data){
        if(isset($data['image'])){

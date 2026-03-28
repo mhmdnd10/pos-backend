@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Services\SaleService;
 
 
+
 class SaleController extends Controller
 {
     protected $saleService;
@@ -38,4 +39,39 @@ class SaleController extends Controller
         $sale = $this->saleService->getById($id);
         return response()->json($sale,200);
     }
+
+    public function update(Request $request, $id)
+    {
+        $data = $request->validate([
+            'customer_id' => 'nullable|exists:customers,id',
+            'total_amount' => 'required|numeric',
+            'paid_amount' => 'required|numeric',
+            'items' => 'required|array',
+            'items.*.product_id' => 'required|exists:products,id',
+            'items.*.quantity' => 'required|integer|min:1',
+            'items.*.unit_price' => 'required|numeric|min:0',
+        ]);
+        $sale = $this->saleService->update($id, $data);
+        return response()->json($sale, 200);
+    }
+
+    public function getInvoiceNumber($saleId)
+    {
+        $invoiceNumber = $this->saleService->generateInvoiceNumber($saleId);
+        return response()->json(['invoice_number' => $invoiceNumber], 200);
+    }
+    public function quickReturn(Request $request){
+        $data=$request->validate([
+            'customer_id' => 'nullable|exists:customers,id',
+            'total_amount' => 'required|numeric',
+            'paid_amount' => 'required|numeric',
+            'items' => 'required|array',
+            'items.*.product_id' => 'required|exists:products,id',
+            'items.*.quantity' => 'required|integer|min:1',
+            'items.*.unit_price' => 'required|numeric|min:0',
+        ]);
+        $return = $this->saleService->quickReturn($data['items']);
+        return response()->json($return, 200);
+    }
+
 }

@@ -63,6 +63,9 @@ Route::prefix('sales')->middleware('auth:sanctum')->group(function () {
     Route::get('/', [SaleController::class, 'index']);
     Route::post('/', [SaleController::class, 'store']);
     Route::get('/{id}', [SaleController::class, 'show']);
+    Route::put('/{id}', [SaleController::class, 'update']);
+    Route::get('/invoice/{saleId}', [SaleController::class, 'getInvoiceNumber']);
+    Route::post('/quick-return', [SaleController::class, 'quickReturn']);
 });
 
 //customer routes
