@@ -30,7 +30,19 @@ class ProductsImport implements ToModel, WithHeadingRow, WithChunkReading, Shoul
     }
     public function model(array $row)
     {
-        $imagePath = null;
+        $name = trim($row['name'] ?? '');
+        if ($name === '') {
+            return null; 
+        }
+        $purchasePrice = is_numeric($row['purchase_price'] ?? null) ? $row['purchase_price'] : 0;
+        $salePrice = is_numeric($row['sale_price'] ?? null) ? $row['sale_price'] : 0;
+        $stock = is_numeric($row['stock_quantity'] ?? null) ? $row['stock_quantity'] : 0;
+
+        if ($purchasePrice < 0 || $salePrice < 0 || $stock < 0) {
+            return null;
+        }
+
+         $imagePath = null;
         if(!empty($row['image_url'])){
             $response=Http::get($row['image_url']);
             if($response->successful()){
@@ -42,14 +54,18 @@ class ProductsImport implements ToModel, WithHeadingRow, WithChunkReading, Shoul
             }
 
         }
+       
         return new Product([
             'name' => $row['name'],
             'barcode' => $row['barcode'] ?? null,
-            'category_id' => $row['category_id'],
+            'category_id' => $row['category_id'] ?? null,
             'description' => $row['description'] ?? null,
-            'purchase_price' => $row['purchase_price'],
-            'sale_price' => $row['sale_price'],
-            'stock_quantity' => $row['stock_quantity'],
+            'purchase_price' => $purchasePrice,
+            'sale_price' => $salePrice,
+            'stock_quantity' => $stock,
+            'size' => $row['size'] ?? null,
+            'color' => $row['color'] ?? null,
+            'brand' => $row['brand'] ?? null,
             'image' => $imagePath,
             'shop_id' => $this->shopId,
             'is_active' => $row['is_active'] ?? true,

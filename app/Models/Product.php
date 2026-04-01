@@ -20,6 +20,9 @@ class Product extends Model
         'is_active',
         'minimum_stock_alert',
         'shop_id',
+        'size',
+        'color',
+        'brand',
 
     ];
 

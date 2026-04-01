@@ -32,12 +32,15 @@ class ProductController extends Controller
         $data = $request->validate([
             'name' => 'required|string|max:255',
             'barcode' => 'nullable|string|max:255',
-            'category_id' => 'required|exists:categories,id',
+            'category_id' => 'nullable|exists:categories,id',
             'description' => 'nullable|string',
             'purchase_price' => 'required|numeric',
             'sale_price' => 'required|numeric',
             'stock_quantity' => 'required|integer',
             'image' => 'nullable|image|max:2048',
+            'size' => 'nullable|string|max:255',
+            'color' => 'nullable|string|max:255',
+            'brand' => 'nullable|string|max:255',
             'is_active' => 'boolean',
             'minimum_stock_alert' => 'integer|min:0',
         ]);
@@ -57,12 +60,15 @@ class ProductController extends Controller
         $data = $request->validate([
             'name' => 'sometimes|required|string|max:255',
             'barcode' => 'nullable|string|max:255',
-            'category_id' => 'sometimes|required|exists:categories,id',    
+            'category_id' => 'sometimes|nullable|exists:categories,id',
             'description' => 'nullable|string',
             'purchase_price' => 'sometimes|required|numeric',
             'sale_price' => 'sometimes|required|numeric',
             'stock_quantity' => 'sometimes|required|integer',
             'image' => 'nullable|image|max:2048',
+            'size' => 'nullable|string|max:255',
+            'color' => 'nullable|string|max:255',
+            'brand' => 'nullable|string|max:255',
             'is_active' => 'boolean',
             'minimum_stock_alert' => 'integer|min:0',
         ]);
@@ -91,7 +97,7 @@ class ProductController extends Controller
     public function import(Request $request)
     {
         $request->validate([
-            'file' => 'required|file|mimes:xlsx,xls',
+            'file' => 'required|file|mimes:xlsx,xls,csv',
         ]);
         $shopId = $request->user()->shop_id;
         Excel::queueImport(new ProductsImport($shopId), $request->file('file'));
