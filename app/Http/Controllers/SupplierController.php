@@ -20,7 +20,7 @@ class SupplierController extends Controller
     public function store(Request $request){
         $data=$request->validate([
             'name'=>'required|string|max:255|unique:suppliers,name',
-            'phone'=>'required|string|max:20',
+            'phone'=>'nullable|string|max:20',
             'address'=>'nullable|string|max:255',
             'current_balance'=>'nullable|numeric',
         ]);

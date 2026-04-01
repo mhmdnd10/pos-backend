@@ -11,6 +11,7 @@ use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\CustomerPaymentController;
 use App\Http\Controllers\SupplierPaymentController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DailyBusinessController;
 
 //auth routes
 Route::post('/register', [AuthController::class, 'register']);
@@ -94,4 +95,11 @@ Route::prefix('supplier-payments')->middleware('auth:sanctum')->group(function (
 
 //dashboard route
 Route::get('/dashboard', [DashboardController::class, 'index'])->middleware('auth:sanctum');
+
+//report routes
+Route::prefix('reports')->middleware('auth:sanctum')->group(function () {
+    Route::post('/daily-summary', [DailyBusinessController::class, 'generateDailySummary']);
+    Route::get('/monthly-summary', [DailyBusinessController::class, 'getMonthlyReport']);
+    Route::get('/daily-summary', [DailyBusinessController::class, 'getDailySummary']);
+});
 
