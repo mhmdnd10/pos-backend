@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::table('supplier_payments', function (Blueprint $table) {
             $table->date('payment_date')->nullable()->after('id');
+            $table->index('payment_date','idx_payment_date');
         });
     }
 
@@ -23,6 +24,7 @@ return new class extends Migration
     {
         Schema::table('supplier_payments', function (Blueprint $table) {
             $table->dropColumn('payment_date');
+            $table->dropIndex('idx_payment_date');
         });
     }
 };

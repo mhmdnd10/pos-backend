@@ -25,6 +25,7 @@ return new class extends Migration
             'supplier_ledgers',
             'customer_payments',
             'supplier_payments',
+            
         ];
         foreach ($tables as $table) {
             Schema::table($table, function (Blueprint $table) {

@@ -19,7 +19,7 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->decimal('purchase_price', 10, 2);
             $table->decimal('sale_price', 10, 2);
-            $table->integer('stock_quantity');
+            $table->decimal('stock_quantity', 10, 2)->default(0);
             $table->string('size')->nullable();
             $table->string('color')->nullable();
             $table->string('brand')->nullable();
