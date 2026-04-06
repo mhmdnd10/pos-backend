@@ -12,6 +12,7 @@ use App\Http\Controllers\CustomerPaymentController;
 use App\Http\Controllers\SupplierPaymentController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DailyBusinessController;
+use App\Http\Controllers\ArchiveController;
 
 //auth routes
 Route::post('/register', [AuthController::class, 'register']);
@@ -103,3 +104,6 @@ Route::prefix('reports')->middleware('auth:sanctum')->group(function () {
     Route::get('/daily-summary', [DailyBusinessController::class, 'getDailySummary']);
 });
 
+//archive route
+Route::get('/archives', [ArchiveController::class, 'index'])->middleware('auth:sanctum');
+Route::post('/archives', [ArchiveController::class, 'store'])->middleware('auth:sanctum');

@@ -295,4 +295,98 @@ class ArchiveService
 
         $summary['purchases_deleted'] = count($purchasesToDelete);
     }
+    /**
+     * Fetch archived data for a specific month.
+     *
+     * Input format: YYYY-MM (example: 2026-02)
+     */
+    public function getArchivesByMonth(string $month): array
+    {
+        $window = $this->getMonthWindow($month);
+        $from = $window['from'];
+        $to = $window['to'];
+
+        $sales = DB::table('sales_archive')
+            ->whereBetween('sale_date', [$from->toDateString(), $to->toDateString()])
+            ->orderBy('sale_date')
+            ->get();
+
+        $salesIds = $sales->pluck('id')->all();
+
+        $saleItems = empty($salesIds)
+            ? collect()
+            : DB::table('sale_items_archive')
+                ->whereIn('sale_id', $salesIds)
+                ->orderBy('id')
+                ->get();
+
+        $customerPayments = empty($salesIds)
+            ? collect()
+            : DB::table('customer_payments_archive')
+                ->whereIn('sale_id', $salesIds)
+                ->orderBy('id')
+                ->get();
+
+        $customerLedgers = empty($salesIds)
+            ? collect()
+            : DB::table('customer_ledgers_archive')
+                ->whereIn('reference_id', $salesIds)
+                ->orderBy('id')
+                ->get();
+
+        $purchases = DB::table('purchases_archive')
+            ->whereBetween('purchase_date', [$from->toDateString(), $to->toDateString()])
+            ->orderBy('purchase_date')
+            ->get();
+
+        $purchaseIds = $purchases->pluck('id')->all();
+
+        $purchaseItems = empty($purchaseIds)
+            ? collect()
+            : DB::table('purchase_items_archive')
+                ->whereIn('purchase_id', $purchaseIds)
+                ->orderBy('id')
+                ->get();
+
+        $supplierPayments = empty($purchaseIds)
+            ? collect()
+            : DB::table('supplier_payments_archive')
+                ->whereIn('purchase_id', $purchaseIds)
+                ->orderBy('id')
+                ->get();
+
+        $supplierLedgers = empty($purchaseIds)
+            ? collect()
+            : DB::table('supplier_ledgers_archive')
+                ->whereIn('reference_id', $purchaseIds)
+                ->orderBy('id')
+                ->get();
+
+        return [
+            'status' => 'success',
+            'month' => $window['month'],
+            'from' => $from->toDateString(),
+            'to' => $to->toDateString(),
+            'counts' => [
+                'sales' => $sales->count(),
+                'sale_items' => $saleItems->count(),
+                'customer_payments' => $customerPayments->count(),
+                'customer_ledgers' => $customerLedgers->count(),
+                'purchases' => $purchases->count(),
+                'purchase_items' => $purchaseItems->count(),
+                'supplier_payments' => $supplierPayments->count(),
+                'supplier_ledgers' => $supplierLedgers->count(),
+            ],
+            'data' => [
+                'sales' => $sales,
+                'sale_items' => $saleItems,
+                'customer_payments' => $customerPayments,
+                'customer_ledgers' => $customerLedgers,
+                'purchases' => $purchases,
+                'purchase_items' => $purchaseItems,
+                'supplier_payments' => $supplierPayments,
+                'supplier_ledgers' => $supplierLedgers,
+            ],
+        ];
+    }
 }
