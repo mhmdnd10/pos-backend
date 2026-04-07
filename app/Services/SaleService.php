@@ -98,7 +98,7 @@ class SaleService
         return DB::transaction(function () use ($id, $data) {
             $sale = Sale::findOrFail($id);
             $oldItems = $sale->saleItems()->get()->keyBy('product_id');
-            $total = 0;
+            $total = 0.0;
 
             foreach ($data['items'] as $item) {
                 $product = Product::findOrFail($item['product_id']);
@@ -145,20 +145,28 @@ class SaleService
                 $oldItem->delete();
             }
 
+            $requestedPaidAmount = (float) $data['paid_amount'];
+            $paidAmount = min($requestedPaidAmount, $total);
+            $remainingAmount = max($total - $paidAmount, 0);
+
             $sale->update([
                 'total_amount' => $total,
-                'paid_amount' => $data['paid_amount'],
-                'remaining_amount' => $total - $data['paid_amount'],
-                'payment_status' => $data['paid_amount'] >= $total ? 'paid' : ($data['paid_amount'] > 0 ? 'partial' : 'unpaid'),
+                'paid_amount' => $paidAmount,
+                'remaining_amount' => $remainingAmount,
+                'payment_status' => $paidAmount >= $total ? 'paid' : ($paidAmount > 0 ? 'partial' : 'unpaid'),
+                'invoice_status' => $total <= 0 ? 'cancelled' : 'finalized',
             ]);
+
+            $this->syncCustomerLedgerForSale($sale, $total, $paidAmount);
 
             return $sale->load('saleItems.product', 'customer');
         });
     }
 
-    public function quickReturn(array $items)
+    public function quickReturn(array $data)
 {
-    return DB::transaction(function () use ($items) {
+    return DB::transaction(function () use ($data) {
+        $items = $data['items'];
         $totalReturnAmount = 0;
         $returnItems = [];
 
@@ -184,16 +192,81 @@ class SaleService
                 'unit_price' => $unitPrice,
                 'purchase_price' => $product->purchase_price,
                 'total_price' => $returnAmount,
+                'product_name' => $product->name,
             ];
+        }
+
+        $returnSale = Sale::create([
+            'customer_id' => $data['customer_id'] ?? null,
+            'total_amount' => $totalReturnAmount,
+            'paid_amount' => 0,
+            'remaining_amount' => 0,
+            'payment_status' => 'unpaid',
+            'sale_date' => $data['sale_date'] ?? now()->toDateString(),
+            'invoice_status' => 'cancelled',
+        ]);
+
+        foreach ($returnItems as $item) {
+            $returnSale->saleItems()->create([
+                'product_id' => $item['product_id'],
+                'quantity' => $item['quantity'],
+                'unit_price' => $item['unit_price'],
+                'total_price' => $item['total_price'],
+            ]);
         }
 
         return [
             'message' => 'Return processed successfully',
+            'return_sale_id' => $returnSale->id,
             'total_return_amount' => $totalReturnAmount,
             'items' => $returnItems,
         ];
     });
 }
+
+    private function syncCustomerLedgerForSale(Sale $sale, float $totalAmount, float $paidAmount): void
+    {
+        if (empty($sale->customer_id)) {
+            return;
+        }
+
+        $saleReference = 'SAL-' . $sale->id;
+        $paymentReference = 'PAY-' . $sale->id;
+
+        CustomerLedger::updateOrCreate(
+            [
+                'customer_id' => $sale->customer_id,
+                'type' => 'sale',
+                'reference_id' => $sale->id,
+                'reference_number' => $saleReference,
+            ],
+            [
+                'debit' => $totalAmount,
+                'credit' => 0,
+            ]
+        );
+
+        if ($paidAmount > 0) {
+            CustomerLedger::updateOrCreate(
+                [
+                    'customer_id' => $sale->customer_id,
+                    'type' => 'payment',
+                    'reference_id' => $sale->id,
+                    'reference_number' => $paymentReference,
+                ],
+                [
+                    'debit' => 0,
+                    'credit' => $paidAmount,
+                ]
+            );
+        } else {
+            CustomerLedger::where('customer_id', $sale->customer_id)
+                ->where('type', 'payment')
+                ->where('reference_id', $sale->id)
+                ->where('reference_number', $paymentReference)
+                ->delete();
+        }
+    }
 
 
     

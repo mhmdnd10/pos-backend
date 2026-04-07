@@ -11,6 +11,7 @@ class DailyBusinessSummary extends Model
         'shop_id',
         'business_date',
         'total_sales',
+        'total_return_sales',
         'total_purchases',
         'customer_payments',
         'supplier_payments',
@@ -20,6 +21,7 @@ class DailyBusinessSummary extends Model
     protected $casts = [
         'business_date' => 'date:Y-m-d',
         'total_sales' => 'decimal:2',
+        'total_return_sales' => 'decimal:2',
         'total_purchases' => 'decimal:2',
         'customer_payments' => 'decimal:2',
         'supplier_payments' => 'decimal:2',

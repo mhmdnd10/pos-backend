@@ -4,9 +4,12 @@ namespace App\Services;
 
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class ArchiveService
 {
+    private array $tableColumnsCache = [];
+
     /**
      * Main entry point: archive a closed month
      * 
@@ -123,7 +126,7 @@ class ArchiveService
 
         // Copy sales → sales_archive
         // Add archived_at timestamp to track when it was moved
-        $salesToArchive = $sales->map(fn($row) => (array) $row + ['archived_at' => $archivedAt])->all();
+        $salesToArchive = $this->prepareArchiveRows($sales, 'sales_archive', $archivedAt);
         DB::table('sales_archive')->insert($salesToArchive);
         $summary['tables_archived']['sales'] = count($salesToArchive);
 
@@ -134,7 +137,7 @@ class ArchiveService
             ->get();
 
         if ($saleItems->isNotEmpty()) {
-            $itemsToArchive = $saleItems->map(fn($row) => (array) $row + ['archived_at' => $archivedAt])->all();
+            $itemsToArchive = $this->prepareArchiveRows($saleItems, 'sale_items_archive', $archivedAt);
             DB::table('sale_items_archive')->insert($itemsToArchive);
             $summary['tables_archived']['sale_items'] = count($itemsToArchive);
         } else {
@@ -148,7 +151,7 @@ class ArchiveService
             ->get();
 
         if ($payments->isNotEmpty()) {
-            $paymentsToArchive = $payments->map(fn($row) => (array) $row + ['archived_at' => $archivedAt])->all();
+            $paymentsToArchive = $this->prepareArchiveRows($payments, 'customer_payments_archive', $archivedAt);
             DB::table('customer_payments_archive')->insert($paymentsToArchive);
             $summary['tables_archived']['customer_payments'] = count($paymentsToArchive);
         } else {
@@ -163,7 +166,7 @@ class ArchiveService
             ->get();
 
         if ($ledgers->isNotEmpty()) {
-            $ledgersToArchive = $ledgers->map(fn($row) => (array) $row + ['archived_at' => $archivedAt])->all();
+            $ledgersToArchive = $this->prepareArchiveRows($ledgers, 'customer_ledgers_archive', $archivedAt);
             DB::table('customer_ledgers_archive')->insert($ledgersToArchive);
             $summary['tables_archived']['customer_ledgers'] = count($ledgersToArchive);
         } else {
@@ -227,7 +230,7 @@ class ArchiveService
         $purchaseIds = $purchases->pluck('id')->all();
 
         // Copy purchases → purchases_archive
-        $purchasesToArchive = $purchases->map(fn($row) => (array) $row + ['archived_at' => $archivedAt])->all();
+        $purchasesToArchive = $this->prepareArchiveRows($purchases, 'purchases_archive', $archivedAt);
         DB::table('purchases_archive')->insert($purchasesToArchive);
         $summary['tables_archived']['purchases'] = count($purchasesToArchive);
 
@@ -237,7 +240,7 @@ class ArchiveService
             ->get();
 
         if ($purchaseItems->isNotEmpty()) {
-            $itemsToArchive = $purchaseItems->map(fn($row) => (array) $row + ['archived_at' => $archivedAt])->all();
+            $itemsToArchive = $this->prepareArchiveRows($purchaseItems, 'purchase_items_archive', $archivedAt);
             DB::table('purchase_items_archive')->insert($itemsToArchive);
             $summary['tables_archived']['purchase_items'] = count($itemsToArchive);
         } else {
@@ -250,7 +253,7 @@ class ArchiveService
             ->get();
 
         if ($supplierPayments->isNotEmpty()) {
-            $paymentsToArchive = $supplierPayments->map(fn($row) => (array) $row + ['archived_at' => $archivedAt])->all();
+            $paymentsToArchive = $this->prepareArchiveRows($supplierPayments, 'supplier_payments_archive', $archivedAt);
             DB::table('supplier_payments_archive')->insert($paymentsToArchive);
             $summary['tables_archived']['supplier_payments'] = count($paymentsToArchive);
         } else {
@@ -263,12 +266,41 @@ class ArchiveService
             ->get();
 
         if ($supplierLedgers->isNotEmpty()) {
-            $ledgersToArchive = $supplierLedgers->map(fn($row) => (array) $row + ['archived_at' => $archivedAt])->all();
+            $ledgersToArchive = $this->prepareArchiveRows($supplierLedgers, 'supplier_ledgers_archive', $archivedAt);
             DB::table('supplier_ledgers_archive')->insert($ledgersToArchive);
             $summary['tables_archived']['supplier_ledgers'] = count($ledgersToArchive);
         } else {
             $summary['tables_archived']['supplier_ledgers'] = 0;
         }
+    }
+
+    /**
+     * Keep only columns that exist in the target archive table.
+     */
+    private function prepareArchiveRows($rows, string $archiveTable, Carbon $archivedAt): array
+    {
+        $allowedColumns = $this->getTableColumns($archiveTable);
+
+        return $rows
+            ->map(function ($row) use ($allowedColumns, $archivedAt) {
+                $payload = (array) $row;
+
+                if (in_array('archived_at', $allowedColumns, true)) {
+                    $payload['archived_at'] = $archivedAt;
+                }
+
+                return array_intersect_key($payload, array_flip($allowedColumns));
+            })
+            ->all();
+    }
+
+    private function getTableColumns(string $table): array
+    {
+        if (!array_key_exists($table, $this->tableColumnsCache)) {
+            $this->tableColumnsCache[$table] = Schema::getColumnListing($table);
+        }
+
+        return $this->tableColumnsCache[$table];
     }
 
     /**
@@ -361,6 +393,7 @@ class ArchiveService
                 ->whereIn('reference_id', $purchaseIds)
                 ->orderBy('id')
                 ->get();
+        
 
         return [
             'status' => 'success',

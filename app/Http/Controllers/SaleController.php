@@ -63,14 +63,14 @@ class SaleController extends Controller
     public function quickReturn(Request $request){
         $data=$request->validate([
             'customer_id' => 'nullable|exists:customers,id',
-            'total_amount' => 'required|numeric',
-            'paid_amount' => 'required|numeric',
+            'sale_date' => 'nullable|date',
             'items' => 'required|array',
             'items.*.product_id' => 'required|exists:products,id',
             'items.*.quantity' => 'required|numeric|min:1',
             'items.*.unit_price' => 'required|numeric|min:0',
+            
         ]);
-        $return = $this->saleService->quickReturn($data['items']);
+        $return = $this->saleService->quickReturn($data);
         return response()->json($return, 200);
     }
 
