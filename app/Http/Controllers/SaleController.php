@@ -22,7 +22,7 @@ class SaleController extends Controller
             'paid_amount' => 'required|numeric',
             'items' => 'required|array',
             'items.*.product_id' => 'required|exists:products,id',
-            'items.*.quantity' => 'required|integer|min:1',
+            'items.*.quantity' => 'required|numeric|min:1',
             'items.*.unit_price' => 'required|numeric|min:0',
         ]);
         $sale = $this->saleService->create($data);
@@ -48,7 +48,7 @@ class SaleController extends Controller
             'paid_amount' => 'required|numeric',
             'items' => 'required|array',
             'items.*.product_id' => 'required|exists:products,id',
-            'items.*.quantity' => 'required|integer|min:1',
+            'items.*.quantity' => 'required|numeric|min:1',
             'items.*.unit_price' => 'required|numeric|min:0',
         ]);
         $sale = $this->saleService->update($id, $data);
@@ -67,7 +67,7 @@ class SaleController extends Controller
             'paid_amount' => 'required|numeric',
             'items' => 'required|array',
             'items.*.product_id' => 'required|exists:products,id',
-            'items.*.quantity' => 'required|integer|min:1',
+            'items.*.quantity' => 'required|numeric|min:1',
             'items.*.unit_price' => 'required|numeric|min:0',
         ]);
         $return = $this->saleService->quickReturn($data['items']);
