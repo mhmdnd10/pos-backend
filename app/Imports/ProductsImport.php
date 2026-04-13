@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Intervention\Image\ImageManager;
 use Intervention\Image\Drivers\Gd\Driver;
+use App\Services\ProductService;
 
 class ProductsImport implements ToModel, WithHeadingRow, WithChunkReading, ShouldQueue
 {
@@ -28,6 +29,17 @@ class ProductsImport implements ToModel, WithHeadingRow, WithChunkReading, Shoul
     {
         return 1000;
     }
+    private function normalize($text)
+    {
+        $text = mb_strtolower($text, 'UTF-8');
+
+        $text = strtr($text, [
+            'أ'=>'ا','إ'=>'ا','آ'=>'ا',
+            'ة'=>'ه','ى'=>'ي'
+        ]);
+
+        return str_replace(['/', '-', '_', '.', ',', ' '], '', $text);
+    }
     public function model(array $row)
     {
         $name = trim($row['name'] ?? '');
@@ -37,6 +49,8 @@ class ProductsImport implements ToModel, WithHeadingRow, WithChunkReading, Shoul
         $purchasePrice = is_numeric($row['purchase_price'] ?? null) ? $row['purchase_price'] : 0;
         $salePrice = is_numeric($row['sale_price'] ?? null) ? $row['sale_price'] : 0;
         $stock = is_numeric($row['stock_quantity'] ?? null) ? $row['stock_quantity'] : 0;
+        $model=trim($row['model'] ?? '');
+        $shelfLocation=trim($row['shelf_location'] ?? '');
 
         if ($purchasePrice < 0 || $salePrice < 0 || $stock < 0) {
             return null;
@@ -54,6 +68,16 @@ class ProductsImport implements ToModel, WithHeadingRow, WithChunkReading, Shoul
             }
 
         }
+        $searchText=$this->normalize(
+            $name .
+            ($row['brand'] ?? '') .
+            ($row['color'] ?? '') .
+            ($row['size'] ?? '') .
+            ($row['barcode'] ?? '') .
+            $model .
+            $shelfLocation
+
+        );
        
         return new Product([
             'name' => $row['name'],
@@ -70,6 +94,11 @@ class ProductsImport implements ToModel, WithHeadingRow, WithChunkReading, Shoul
             'shop_id' => $this->shopId,
             'is_active' => $row['is_active'] ?? true,
             'minimum_stock_alert' => $row['minimum_stock_alert'] ?? 0,
+            'model' => $row['model'] ?: null,
+            'shelf_location' => $row['shelf_location'] ?: null,
+            'search_text' => $searchText,
+
+
         ]);
     }
 }

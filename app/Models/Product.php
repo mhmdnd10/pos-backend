@@ -23,6 +23,9 @@ class Product extends Model
         'size',
         'color',
         'brand',
+        'model',
+        'search_text',
+        'shelf_location',
 
     ];
 

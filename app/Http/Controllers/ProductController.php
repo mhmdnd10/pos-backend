@@ -36,13 +36,16 @@ class ProductController extends Controller
             'description' => 'nullable|string',
             'purchase_price' => 'required|numeric',
             'sale_price' => 'required|numeric',
-            'stock_quantity' => 'required|numberic',
+            'stock_quantity' => 'required|numeric',
             'image' => 'nullable|image|max:2048',
             'size' => 'nullable|string|max:255',
             'color' => 'nullable|string|max:255',
             'brand' => 'nullable|string|max:255',
             'is_active' => 'boolean',
             'minimum_stock_alert' => 'integer|min:0',
+            'model' => 'nullable|string|max:255',
+            'shelf_location' => 'nullable|string|max:255',
+          
         ]);
         if($request->hasFile('image')){
             $data['image'] = $request->file('image');
@@ -71,6 +74,9 @@ class ProductController extends Controller
             'brand' => 'nullable|string|max:255',
             'is_active' => 'boolean',
             'minimum_stock_alert' => 'integer|min:0',
+            'model' => 'nullable|string|max:255',
+            'shelf_location' => 'nullable|string|max:255',
+           
         ]);
         if($request->hasFile('image')){
             $data['image'] = $request->file('image');
