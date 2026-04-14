@@ -92,11 +92,18 @@ class ProductController extends Controller
         $this->productService->delete($product);
         return response()->json(['message' => 'Product deleted successfully'], 200);
     }
-    public function getByCategory($categoryId, Request $request)
+    public function getByFilter( Request $request)
     {
         $perPage = (int) $request->query('per_page', 15);
         $search = trim($request->query('search'));
-        $products = $this->productService->getByCategory($categoryId, $perPage, $search);
+        $filters = $request->only([
+            'category_id',
+            'shelf_location',
+            'brand',
+            'size',
+            'color'
+        ]);
+        $products = $this->productService->getByFilter($filters, $perPage, $search);
         return response()->json($products, 200);
     }
 

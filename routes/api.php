@@ -35,11 +35,13 @@ Route::middleware('auth:sanctum')->group(function () {
 //product routes
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/products', [ProductController::class, 'index']);
+        Route::get('/products/filters', [ProductController::class, 'getByFilter']);
+
     Route::post('/products', [ProductController::class, 'store']);
+
     Route::get('/products/{id}', [ProductController::class, 'show']);
     Route::put('/products/{id}', [ProductController::class, 'update']);
     Route::delete('/products/{id}', [ProductController::class, 'destroy']);
-    Route::get('/products/category/{categoryId}', [ProductController::class, 'getByCategory']);
     Route::post('/products/import', [ProductController::class, 'import']);
 });
 

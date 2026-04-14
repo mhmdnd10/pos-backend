@@ -10,6 +10,7 @@ use Intervention\Image\Drivers\Gd\Driver;
 
 
 
+
 class ProductService{
    private function normalize($text){
         $text=mb_strtolower($text,'UTF-8');
@@ -61,11 +62,19 @@ class ProductService{
     public function getById($id){
         return Product::findOrFail($id);
     }
-    public function getByCategory($categoryId,$perPage=15, $search=null){
-        return Product::query()->where('category_id', $categoryId)
-            ->when($search, function($query) use ($search){
+    public function getByFilter($filters,$perPage=15, $search=null){
+        $query=Product::query();
+        $filters=['category_id','shelf_location','brand','size','color'];
+        foreach($filters as $filter){
+            if(request()->has($filter)){
+                $query->where($filter, request()->query($filter));
+            }
+        }
+        
+         return $query->when($search, function($query) use ($search){
                 $this->applySearch($query, $search);
-            })->paginate($perPage);
+            })->with('category')->orderBy('id', 'desc')->paginate($perPage);
+         
     }
     public function update(Product $product, array $data){
        if(isset($data['image'])){
